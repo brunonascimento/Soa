@@ -11,7 +11,7 @@ namespace BestDog
     {
         private SqlConnection connection;
         public String connectionString = @"Data Source=.\SQLEXPRESS;
-                                          AttachDbFilename=C:\Documents and Settings\Administrador\Meus documentos\GitHub\Soa\BestDog\BestDog\App_Data;
+                                          AttachDbFilename=C:\Documents and Settings\Administrador\Meus documentos\GitHub\Soa\BestDog\BestDog\App_Data\database.mdf;
                                           Integrated Security=True;
                                           Connect Timeout=30;
                                           User Instance=True";
@@ -99,6 +99,10 @@ namespace BestDog
                              (CPFCLiente, TipoHotDog, QtdeHotDog, TipoBebida, QtdeBebida)
                              Values
                             (@CPFCLiente, @TipoHotDog, @QtdeHotDog, @TipoBebida, @QtdeBebida)";
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
 
             SqlCommand cmd = new SqlCommand(query, connection);
 
@@ -113,16 +117,110 @@ namespace BestDog
             cmd.ExecuteNonQuery();
         }
 
+        public int LOJA_VerificaProdutoEstoque(int Id)
+        {
+            String query = @"SELECT QtdeEstoque
+                            From  EstoqueLoja 
+                            WHERE IdProduto=@id";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+            IDataReader dr;
+            cmd.Parameters.Add(new SqlParameter("@id", Id));
+      
+
+            int retorno = -1;
 
 
+            using (dr = cmd.ExecuteReader())
+            {
 
-        public int FORNECEDOR_VerificaProdutoEstoque(int Id, int Qtde)
+                if (!dr.Read())
+                {
+                    retorno = -1;
+                }
+                else
+                {
+                    retorno = dr.GetInt32(0);
+                }
+            }
+
+
+            return retorno;
+
+        }
+
+        public void LOJA_AtualizaEstoque(int id, int QtdeVendida, int QtdeEstoque)
+        {
+
+            int QtdeFinal = QtdeEstoque - QtdeVendida;
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
+
+            String query = @"UPDATE ProdutosFornecedor 
+                             SET QtdeEstoque = @Qtde
+                             WHERE IdProduto = @Id";
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+            SqlParameter par = new SqlParameter("@Qtde", SqlDbType.Int);
+            SqlParameter par1 = new SqlParameter("@Id", SqlDbType.Int);
+
+            par.Value = QtdeFinal;
+            par1.Value = id;
+
+
+            cmd.Parameters.Add(par);
+            cmd.Parameters.Add(par1);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public void CENTRAL_AtualizaEstoque(int id, int QtdeVendida, int QtdeEstoque)
+        {
+
+            int QtdeFinal = QtdeEstoque - QtdeVendida;
+
+            String query = @"UPDATE EstoqueCentral 
+                             SET QtdeEstoque = @Qtde
+                             WHERE IdProduto = @Id";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+            SqlParameter par = new SqlParameter("@Qtde", SqlDbType.Int);
+            SqlParameter par1 = new SqlParameter("@Id", SqlDbType.Int);
+
+            par.Value = QtdeFinal;
+            par1.Value = id;
+
+
+            cmd.Parameters.Add(par);
+            cmd.Parameters.Add(par1);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public int CENTRAL_VerificaProdutoEstoque(int Id, int Qtde)
         {
             String query = @"SELECT qtdeEstoque
-                            From  ProdutosFornecedor 
+                            From  EstoqueCentral 
                             WHERE IdProduto=@id
                             AND QtdeEstoque >= @qtde";
 
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
 
             SqlCommand cmd = new SqlCommand(query, connection);
             IDataReader dr;
@@ -151,6 +249,65 @@ namespace BestDog
         }
 
 
+        public void FORNECEDOR_CentralConfirmaCompra(int IDVenda)
+        {
+
+            String query = @"UPDATE VendaFornecedor
+                            SET  Status = 1 
+                            WHERE IDVenda = @IDVenda";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+
+            cmd.Parameters.Add(new SqlParameter("@IDVenda", IDVenda));
+
+            cmd.ExecuteNonQuery();
+        }
+
+
+
+        public int FORNECEDOR_VerificaProdutoEstoque(int Id, int Qtde)
+        {
+            String query = @"SELECT qtdeEstoque
+                            From  ProdutosFornecedor 
+                            WHERE IdProduto=@id
+                            AND QtdeEstoque >= @qtde";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+            IDataReader dr;
+            cmd.Parameters.Add(new SqlParameter("@id", Id));
+            cmd.Parameters.Add(new SqlParameter("@qtde", Qtde));
+            int retorno = -1;
+
+
+            using (dr = cmd.ExecuteReader())
+            {
+
+                if (!dr.Read())
+                {
+                    //adiciona fidelidade
+                    retorno = -1;
+                }
+                else
+                {
+                    retorno = dr.GetInt32(0);
+                }
+            }
+
+
+            return retorno;
+
+        }
+
         public void FORNECEDOR_AtualizaEstoque(int id, int QtdeVendida, int QtdeEstoque )
         {
 
@@ -159,6 +316,11 @@ namespace BestDog
             String query = @"UPDATE Produtos 
                              SET QtdeEstoque = @Qtde
                              WHERE IdProduto = @Id";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
 
             SqlCommand cmd = new SqlCommand(query, connection);
             SqlParameter par = new SqlParameter("@Qtde", SqlDbType.Int );
@@ -174,7 +336,6 @@ namespace BestDog
             cmd.ExecuteNonQuery();
         }
 
-
         public void FORNECEDOR_SalvaVenda(int idCliente, int IdProduto , int QtdeVendida)
         {
 
@@ -182,6 +343,11 @@ namespace BestDog
                              (IDCliente, IDProduto, QtdeProduto, Status)
                              Values
                             (@IDCliente, @IDProduto, @QtdeProduto, @Status)";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
 
             SqlCommand cmd = new SqlCommand(query, connection);
 
@@ -210,11 +376,16 @@ namespace BestDog
         
 
             String query = @"UPDATE VendaFornecedor
-                            SET  DataEntrega = @DataEntrega 
+                            SET  DataEntrega = @DataEntrega , Status = 2 
                             WHERE IDCliente = @IDCliente 
                             AND DataEntrega is null
-                            AND Status = 0 ";
+                            ";
 
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
 
             SqlCommand cmd = new SqlCommand(query, connection);
        
@@ -261,7 +432,6 @@ namespace BestDog
 
         }
 
-
         public double FORNECEDOR_FazOrcamento(int Id)
         {
             String query = @"SELECT PrecoUnitatioProduto
@@ -296,8 +466,6 @@ namespace BestDog
             return retorno;
 
         }
-
-
 
     }
 }
