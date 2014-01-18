@@ -78,14 +78,27 @@ namespace BestDog
         }
 
         [WebMethod]
-        public void RegistraVenda(int tipoHotDog, int tipoBebida,String cpf)
+        public void RegistraVenda(int tipoHotDog, int QtdeHotDog, int tipoBebida, int QtdeBebida  , String cpf)
         {
+            DatabaseHelper obj = new DatabaseHelper();
 
+            obj.LOJA_SalvaVenda(cpf, tipoHotDog, QtdeHotDog, tipoBebida, QtdeBebida);
         }
 
         [WebMethod]
-        public void AtualizaEstoqueLocal(int tipoHotDog, int tipoBebida)
+        public void AtualizaEstoqueLocal(int idProduto, int qtdeVendida   )
         {
+            DatabaseHelper obj = new DatabaseHelper();
+
+
+            //Se o produto existe no estoque, 
+            int QtdeEstoque = obj.LOJA_VerificaProdutoEstoque (idProduto);
+
+            if (QtdeEstoque != -1)
+            {
+                //Atualizar a quantidade disponível no estoque
+                obj.LOJA_AtualizaEstoque(idProduto, qtdeVendida, QtdeEstoque);
+            }
 
         }
         

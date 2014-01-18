@@ -14,22 +14,35 @@ namespace BestDog
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     // [System.Web.Script.Services.ScriptService]
-    public class Loja : System.Web.Services.WebService
+    public class Fornecedor : System.Web.Services.WebService
     {
 
         [WebMethod]
         public bool fazVenda(int IdProduto, int QtdeVendida, int idCliente)
         {
 
-            bool retorno = false;
-
+       
             DatabaseHelper obj = new DatabaseHelper();
 
 
-            retorno = obj.FORNECEDOR_EfetuaVenda(IdProduto, QtdeVendida,idCliente);
+            //Se o produto existe no estoque, 
+            int QtdeEstoque = obj.FORNECEDOR_VerificaProdutoEstoque(IdProduto, QtdeVendida);
 
+            if (QtdeEstoque != -1)
+            {
+                //Atualizar a quantidade disponível no estoque
+                obj.FORNECEDOR_AtualizaEstoque(IdProduto, QtdeVendida, QtdeEstoque);
 
-            return retorno;
+                //Cadastra a venda
+                obj.FORNECEDOR_SalvaVenda(idCliente, IdProduto, QtdeVendida);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
            
         }
 

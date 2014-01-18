@@ -92,36 +92,34 @@ namespace BestDog
             cmd.ExecuteNonQuery();
         }
 
-
-        public bool FORNECEDOR_EfetuaVenda(int idProduto, int Qtde, int IdCliente)
+        public void LOJA_SalvaVenda(string CPFCLiente, int TipoHotDog, int QtdeHotDog, int TipoBebida, int QtdeBebida)
         {
-      
-            //Se o produto existe no estoque, 
-            int QtdeEstoque = FORNECEDOR_VerificaProdutoEstoque(idProduto, Qtde);
 
-            if (QtdeEstoque != -1)
-            {
-                //Atualizar a quantidade disponível no estoque
-                FORNECEDOR_AtualizaEstoque(idProduto, Qtde, QtdeEstoque);
+            String query = @"INSERT INTO VendaLoja
+                             (CPFCLiente, TipoHotDog, QtdeHotDog, TipoBebida, QtdeBebida)
+                             Values
+                            (@CPFCLiente, @TipoHotDog, @QtdeHotDog, @TipoBebida, @QtdeBebida)";
 
-                //Cadastra a venda
-                FORNECEDOR_SalvaVenda(IdCliente, idProduto, Qtde);
+            SqlCommand cmd = new SqlCommand(query, connection);
 
-                return true; 
-            }
-            else
-            {
-                return false;
-            }
+            cmd.Parameters.Add(new SqlParameter("@CPFCLiente", CPFCLiente));
+            cmd.Parameters.Add(new SqlParameter("@TipoHotDog", TipoHotDog));
+            cmd.Parameters.Add(new SqlParameter("@QtdeHotDog", QtdeHotDog));
+            cmd.Parameters.Add(new SqlParameter("@TipoBebida", TipoBebida));
+            cmd.Parameters.Add(new SqlParameter("@QtdeBebida", QtdeBebida));
+ 
 
+
+            cmd.ExecuteNonQuery();
         }
 
 
 
-        private int FORNECEDOR_VerificaProdutoEstoque(int Id, int Qtde)
+
+        public int FORNECEDOR_VerificaProdutoEstoque(int Id, int Qtde)
         {
             String query = @"SELECT qtdeEstoque
-                            From  Produtos 
+                            From  ProdutosFornecedor 
                             WHERE IdProduto=@id
                             AND QtdeEstoque >= @qtde";
 
@@ -153,7 +151,7 @@ namespace BestDog
         }
 
 
-        private void FORNECEDOR_AtualizaEstoque(int id, int QtdeVendida, int QtdeEstoque )
+        public void FORNECEDOR_AtualizaEstoque(int id, int QtdeVendida, int QtdeEstoque )
         {
 
             int QtdeFinal = QtdeEstoque - QtdeVendida;
@@ -177,7 +175,7 @@ namespace BestDog
         }
 
 
-        private void FORNECEDOR_SalvaVenda(int idCliente, int IdProduto , int QtdeVendida)
+        public void FORNECEDOR_SalvaVenda(int idCliente, int IdProduto , int QtdeVendida)
         {
 
             String query = @"INSERT INTO VendaFornecedor 
