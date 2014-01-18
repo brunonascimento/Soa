@@ -96,9 +96,9 @@ namespace BestDog
         {
 
             String query = @"INSERT INTO VendaLoja
-                             (CPFCLiente, TipoHotDog, QtdeHotDog, TipoBebida, QtdeBebida)
+                             (CPFCLiente, TipoHotDog, QtdeHotDog, TipoBebida, QtdeBebida, Ponto)
                              Values
-                            (@CPFCLiente, @TipoHotDog, @QtdeHotDog, @TipoBebida, @QtdeBebida)";
+                            (@CPFCLiente, @TipoHotDog, @QtdeHotDog, @TipoBebida, @QtdeBebida,3)";
             connection = new SqlConnection();
 
             connection.ConnectionString = connectionString;
@@ -240,6 +240,38 @@ namespace BestDog
                 else
                 {
                     retorno = dr.GetInt32(0);
+                }
+            }
+
+
+            return retorno;
+
+        }
+
+        public double CENTRAL_SelecionaPontuacao(int IdFilial)
+        {
+            String query = @"SELECT SUM(Ponto)
+                            From  VendaLoja";
+
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+            IDataReader dr;
+
+
+            double retorno = -1;
+
+
+            using (dr = cmd.ExecuteReader())
+            {
+
+                if (!dr.Read())
+                {
+
+                    retorno = -1;
+                }
+                else
+                {
+                    retorno = dr.GetFloat(0);
                 }
             }
 
@@ -466,6 +498,10 @@ namespace BestDog
             return retorno;
 
         }
+
+
+        
+
 
     }
 }

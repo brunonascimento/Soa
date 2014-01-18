@@ -18,11 +18,13 @@ namespace BestDog
     {
         List<String> lstCPF = new List<String>();
         Dictionary<int, Dictionary<int, int>> Filial = new Dictionary<int, Dictionary<int, int>>();
+        Dictionary<int, int> MetaFilial = new Dictionary<int, int>();
 
         public Central() : base()
         {
             lstCPF.Add("377.743.768-95");
             Filial = ListaFilial();
+            
         }
 
         [WebMethod]
@@ -68,10 +70,8 @@ namespace BestDog
         {
             DatabaseHelper obj = new DatabaseHelper();
 
-
             //Se o produto existe no estoque, 
             obj.FORNECEDOR_CentralConfirmaCompra(IDVenda);
-
 
         }
 
@@ -98,7 +98,67 @@ namespace BestDog
             DatabaseHelper obj = new DatabaseHelper();
 
             //Agendar todas as compras do cliente para a mesma data de entrega
-            obj.FORNECEDOR_AgendaEntrega(idCliente, DataEntrega);
+            obj.FORNECEDOR_CentralConfirmaCompra (idCompra) ;
+
+        }
+
+
+
+        [WebMethod]
+        public Dictionary<int, int> VerificaEstoqueFilial(int idFilial)
+        {
+            Dictionary<int, int> Produto = new Dictionary<int, int>();
+
+            if (Filial.ContainsKey(idFilial))
+            {
+                Produto = Filial[idFilial];
+
+            }
+
+            return Produto;
+        }
+
+
+        [WebMethod]
+        public void ConfirmaCompra(int idCompra)
+        {
+
+            DatabaseHelper obj = new DatabaseHelper();
+
+            //Agendar todas as compras do cliente para a mesma data de entrega
+            obj.FORNECEDOR_CentralConfirmaCompra(idCompra);
+
+        }
+
+
+        [WebMethod]
+        public void CadastraMetaFilial(int IDFilial, int Meta)
+        {
+            MetaFilial.Add(IDFilial, Meta);
+
+        }
+
+
+        [WebMethod]
+        public bool VerificaMetaFilial(int IDFilial)
+        {
+
+            //Buscar a meta da filial
+            int meta = MetaFilial[IDFilial];
+
+            DatabaseHelper obj = new DatabaseHelper();
+
+            //Agendar todas as compras do cliente para a mesma data de entrega
+            double pontuacao = obj.CENTRAL_SelecionaPontuacao(IDFilial);
+
+            if (pontuacao > meta)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
 
         }
 
