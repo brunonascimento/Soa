@@ -25,7 +25,8 @@ namespace BestDog
         [WebMethod]
         public bool VerificaFidelidade(String CPF)
         {
-            return lstCPF.Contains(CPF);
+            DatabaseHelper dh = new DatabaseHelper();
+            return dh.VerificaFidelidade(CPF);
         }
 
         [WebMethod]

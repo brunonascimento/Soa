@@ -50,6 +50,10 @@
     <Reference Include="System.Web.ApplicationServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\database.mdf" />
+    <Content Include="App_Data\database_log.ldf">
+      <DependentUpon>database.mdf</DependentUpon>
+    </Content>
     <Content Include="Loja.asmx" />
     <Content Include="Central.asmx" />
     <Content Include="Web.config" />
@@ -61,6 +65,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DatabaseHelper.cs" />
     <Compile Include="Loja.asmx.cs">
       <DependentUpon>Loja.asmx</DependentUpon>
       <SubType>Component</SubType>
