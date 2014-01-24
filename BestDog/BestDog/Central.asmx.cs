@@ -39,6 +39,7 @@ namespace BestDog
         {
             DatabaseHelper obj = new DatabaseHelper();
 
+             
 
             //Se o produto existe no estoque, 
             int QtdeEstoque = obj.CENTRAL_VerificaProdutoEstoque(idProduto, qtdeVendida);
