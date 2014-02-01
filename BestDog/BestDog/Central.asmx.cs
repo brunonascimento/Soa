@@ -16,15 +16,11 @@ namespace BestDog
     // [System.Web.Script.Services.ScriptService]
     public class Central : System.Web.Services.WebService
     {
-        List<String> lstCPF = new List<String>();
         Dictionary<int, Dictionary<int, int>> Filial = new Dictionary<int, Dictionary<int, int>>();
         Dictionary<int, int> MetaFilial = new Dictionary<int, int>();
 
         public Central() : base()
-        {
-            lstCPF.Add("377.743.768-95");
-            Filial = ListaFilial();
-            
+        {   
         }
 
         [WebMethod]
@@ -91,33 +87,6 @@ namespace BestDog
             return Produto;
         }
 
-
-        [WebMethod]
-        public void ConfirmaCompra(int idCompra)
-        {
-
-            DatabaseHelper obj = new DatabaseHelper();
-
-            //Agendar todas as compras do cliente para a mesma data de entrega
-            obj.FORNECEDOR_CentralConfirmaCompra (idCompra) ;
-
-        }
-
-
-
-        [WebMethod]
-        public Dictionary<int, int> VerificaEstoqueFilial(int idFilial)
-        {
-            Dictionary<int, int> Produto = new Dictionary<int, int>();
-
-            if (Filial.ContainsKey(idFilial))
-            {
-                Produto = Filial[idFilial];
-
-            }
-
-            return Produto;
-        }
 
 
         [WebMethod]
