@@ -92,13 +92,13 @@ namespace BestDog
             cmd.ExecuteNonQuery();
         }
 
-        public void LOJA_SalvaVenda(string CPFCLiente, int TipoHotDog, int QtdeHotDog, int TipoBebida, int QtdeBebida)
+        public void LOJA_SalvaVenda(string CPFCLiente, int TipoHotDog, int QtdeHotDog, int TipoBebida, int QtdeBebida,int IdFilial)
         {
 
             String query = @"INSERT INTO VendaLoja
-                             (CPFCLiente, TipoHotDog, QtdeHotDog, TipoBebida, QtdeBebida, Ponto)
+                             (CPFCLiente, TipoHotDog, QtdeHotDog, TipoBebida, QtdeBebida, Ponto,IdFilial)
                              Values
-                            (@CPFCLiente, @TipoHotDog, @QtdeHotDog, @TipoBebida, @QtdeBebida,3)";
+                            (@CPFCLiente, @TipoHotDog, @QtdeHotDog, @TipoBebida, @QtdeBebida,3,@IdFilial)";
             connection = new SqlConnection();
 
             connection.ConnectionString = connectionString;
@@ -111,17 +111,47 @@ namespace BestDog
             cmd.Parameters.Add(new SqlParameter("@QtdeHotDog", QtdeHotDog));
             cmd.Parameters.Add(new SqlParameter("@TipoBebida", TipoBebida));
             cmd.Parameters.Add(new SqlParameter("@QtdeBebida", QtdeBebida));
- 
+            cmd.Parameters.Add(new SqlParameter("@IdFilial", IdFilial));
 
 
             cmd.ExecuteNonQuery();
         }
 
-        public int LOJA_VerificaProdutoEstoque(int Id)
+        public Decimal LOJA_ObtemPrecoProduto(int IdProduto, int idFilial)
+        {
+            String query = @"SELECT     PrecoUnitario
+                            FROM         EstoqueLoja 
+                            WHERE IdProduto=@id and IDFilial=@idFilial";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+            IDataReader dr;
+            cmd.Parameters.Add(new SqlParameter("@id", IdProduto));
+            cmd.Parameters.Add(new SqlParameter("@IDFilial", idFilial));
+
+
+            Decimal valor = 0;
+            using (dr = cmd.ExecuteReader())
+            {
+
+                if (dr.Read())
+                {
+                    valor = dr.GetDecimal(0);
+                }
+            }
+
+
+            return valor;
+        }
+        public int LOJA_VerificaProdutoEstoque(int Id, int idFilial)
         {
             String query = @"SELECT QtdeEstoque
                             From  EstoqueLoja 
-                            WHERE IdProduto=@id";
+                            WHERE IdProduto=@id and IDFilial=@idFilial";
 
             connection = new SqlConnection();
 
@@ -131,7 +161,7 @@ namespace BestDog
             SqlCommand cmd = new SqlCommand(query, connection);
             IDataReader dr;
             cmd.Parameters.Add(new SqlParameter("@id", Id));
-      
+            cmd.Parameters.Add(new SqlParameter("@IDFilial", idFilial));
 
             int retorno = -1;
 
@@ -250,28 +280,24 @@ namespace BestDog
 
         public double CENTRAL_SelecionaPontuacao(int IdFilial)
         {
-            String query = @"SELECT SUM(Ponto)
-                            From  VendaLoja";
+            String query = @"SELECT     SUM(Ponto) AS pontos
+                            FROM         VendaLoja
+                            WHERE     IdFilial = @IdFilial";
 
 
             SqlCommand cmd = new SqlCommand(query, connection);
             IDataReader dr;
+            cmd.Parameters.Add(new SqlParameter("@IdFilial", IdFilial));
 
-
-            double retorno = -1;
+            int retorno = -1;
 
 
             using (dr = cmd.ExecuteReader())
             {
 
-                if (!dr.Read())
+                if (dr.Read())
                 {
-
-                    retorno = -1;
-                }
-                else
-                {
-                    retorno = dr.GetFloat(0);
+                    retorno = dr.GetInt32(0);
                 }
             }
 
@@ -500,8 +526,59 @@ namespace BestDog
         }
 
 
-        
+        public int CENTRAL_ObtemMeta(int IdFilial)
+        {
+            String query = @"SELECT     Meta
+                            FROM         Filial
+                            WHERE     IDFilial =@id";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+            IDataReader dr;
+            cmd.Parameters.Add(new SqlParameter("@id", IdFilial));
+
+            int meta = 0;
+            using (dr = cmd.ExecuteReader())
+            {
+
+                if (dr.Read())
+                {
+                    meta = dr.GetInt32(0);
+                }
+            }
 
 
+            return meta;
+        }
+
+
+
+        internal void CENTRAL_CadastraFilial(String NomeFilial, int Meta)
+        {
+            String query = @"INSERT INTO Filial(Nome,Meta)
+                             Values(@Nome, @Meta)";
+
+            connection = new SqlConnection();
+
+            connection.ConnectionString = connectionString;
+            connection.Open();
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+
+            SqlParameter par = new SqlParameter("@Nome", SqlDbType.VarChar);
+            SqlParameter par1 = new SqlParameter("@Meta", SqlDbType.Int);
+
+            par.Value = NomeFilial;
+            par1.Value = Meta;
+            
+            cmd.Parameters.Add(par);
+            cmd.Parameters.Add(par1);
+            
+            cmd.ExecuteNonQuery();
+        }
     }
 }

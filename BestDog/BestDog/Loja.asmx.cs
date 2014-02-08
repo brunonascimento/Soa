@@ -18,58 +18,38 @@ namespace BestDog
     {
 
         [WebMethod]
-        public bool VerificaEstoque(int tipoHotDog, int tipoBebida)
+        public bool VerificaEstoque(int tipoHotDog, int tipoBebida, int filial)
         {
-            bool disponibilidade = true;
-            switch (tipoHotDog)
+            DatabaseHelper obj = new DatabaseHelper();
+
+
+            //Se o produto existe no estoque, 
+            int QtdeEstoqueHotDog = obj.LOJA_VerificaProdutoEstoque(tipoHotDog, filial);
+
+            //Se o produto existe no estoque, 
+            int QtdeEstoqueBebida = obj.LOJA_VerificaProdutoEstoque(tipoBebida, filial);
+
+            if (QtdeEstoqueBebida > 0 && QtdeEstoqueHotDog > 0)
             {
-                case 1:
-                   break;
-                case 2:
-                    disponibilidade = false;
-                    break;
-                default:
-                    disponibilidade = false;
-                    break;
+                return true;
+            }
+            else
+            {
+                return false;
             }
 
-            switch (tipoBebida)
-            {
-                case 1:
-                    break;
-                case 2:
-                    break;
-                default:
-                    disponibilidade = false;
-                    break;
-            }
-            
-            return disponibilidade;
         }
 
         [WebMethod]
-        public decimal CalculaPreco(int tipoHotDog, int tipoBebida,bool desconto)
+        public decimal CalculaPreco(int tipoHotDog, int tipoBebida,bool desconto,int filial)
         {
             decimal total = 0;
-            if (tipoHotDog == 1)
-            {
-                total += 5.90M;
-            }
-            if (tipoHotDog == 2)
-            {
-                total += 7.90M;
-            }
+            
+            DatabaseHelper obj = new DatabaseHelper();
+            total += obj.LOJA_ObtemPrecoProduto(tipoHotDog, filial);
 
-            if (tipoBebida == 1)
-            {
-                total += 1.00M;
-            }
-
-            if (tipoBebida == 2)
-            {
-                total += 1.50M;
-            }
-
+            total += obj.LOJA_ObtemPrecoProduto(tipoBebida, filial);
+            
             if (desconto)
             {
                 total = total * 0.5M;
@@ -78,21 +58,21 @@ namespace BestDog
         }
 
         [WebMethod]
-        public void RegistraVenda(int tipoHotDog, int QtdeHotDog, int tipoBebida, int QtdeBebida  , String cpf)
+        public void RegistraVenda(int tipoHotDog, int QtdeHotDog, int tipoBebida, int QtdeBebida  , String cpf, int idFilial)
         {
             DatabaseHelper obj = new DatabaseHelper();
 
-            obj.LOJA_SalvaVenda(cpf, tipoHotDog, QtdeHotDog, tipoBebida, QtdeBebida);
+            obj.LOJA_SalvaVenda(cpf, tipoHotDog, QtdeHotDog, tipoBebida, QtdeBebida, idFilial);
         }
 
         [WebMethod]
-        public void AtualizaEstoqueLocal(int idProduto, int qtdeVendida   )
+        public void AtualizaEstoqueLocal(int idProduto, int qtdeVendida, int filial)
         {
             DatabaseHelper obj = new DatabaseHelper();
 
 
             //Se o produto existe no estoque, 
-            int QtdeEstoque = obj.LOJA_VerificaProdutoEstoque (idProduto);
+            int QtdeEstoque = obj.LOJA_VerificaProdutoEstoque(idProduto, filial);
 
             if (QtdeEstoque != -1)
             {

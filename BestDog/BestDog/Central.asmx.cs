@@ -16,7 +16,7 @@ namespace BestDog
     // [System.Web.Script.Services.ScriptService]
     public class Central : System.Web.Services.WebService
     {
-        Dictionary<int, Dictionary<int, int>> Filial = new Dictionary<int, Dictionary<int, int>>();
+        //Dictionary<int, Dictionary<int, int>> Filial = new Dictionary<int, Dictionary<int, int>>();
         Dictionary<int, int> MetaFilial = new Dictionary<int, int>();
 
         public Central() : base()
@@ -63,7 +63,7 @@ namespace BestDog
 
 
         [WebMethod]
-        public void ConfirmaCOmpra(int IDVenda)
+        public void ConfirmaCompra(int IDVenda)
         {
             DatabaseHelper obj = new DatabaseHelper();
 
@@ -74,37 +74,23 @@ namespace BestDog
 
 
         [WebMethod]
-        public Dictionary<int, int> VerificaEstoqueFilial(int idFilial)
+        public bool VerificaEstoqueFilial(int idFilial,int idProduto)
         {
-            Dictionary<int, int> Produto = new Dictionary<int, int>();
-
-            if (Filial.ContainsKey(idFilial))
-            {
-                Produto = Filial[idFilial];
-
-            }
-
-            return Produto;
-        }
-
-
-
-        [WebMethod]
-        public void ConfirmaCompra(int idCompra)
-        {
-
             DatabaseHelper obj = new DatabaseHelper();
+            //Se o produto existe no estoque, 
+            int QtdeEstoque = obj.LOJA_VerificaProdutoEstoque(idProduto, idFilial);
 
-            //Agendar todas as compras do cliente para a mesma data de entrega
-            obj.FORNECEDOR_CentralConfirmaCompra(idCompra);
-
+            if (QtdeEstoque > 0)
+            {
+                return true;
+            }
+            return false;
         }
-
-
         [WebMethod]
-        public void CadastraMetaFilial(int IDFilial, int Meta)
+        public void CadastraFilial(String nome, int meta)
         {
-            MetaFilial.Add(IDFilial, Meta);
+            DatabaseHelper obj = new DatabaseHelper();
+            obj.CENTRAL_CadastraFilial(nome, meta);
 
         }
 
@@ -112,12 +98,12 @@ namespace BestDog
         [WebMethod]
         public bool VerificaMetaFilial(int IDFilial)
         {
-
-            //Buscar a meta da filial
-            int meta = MetaFilial[IDFilial];
-
             DatabaseHelper obj = new DatabaseHelper();
 
+            //Buscar a meta da filial
+            int meta = obj.CENTRAL_ObtemMeta(IDFilial);
+
+           
             //Agendar todas as compras do cliente para a mesma data de entrega
             double pontuacao = obj.CENTRAL_SelecionaPontuacao(IDFilial);
 
@@ -134,34 +120,7 @@ namespace BestDog
 
 
 
-        private   Dictionary<int, Dictionary<int, int>> ListaFilial()
-        {
-            Dictionary<int, Dictionary<int, int>> Filial = new Dictionary<int, Dictionary<int, int>>();
-
-            Filial.Add(1, EstoqueProduto());
-            Filial.Add(2, EstoqueProduto());
-
-            return Filial;
-
-        }
-
-        private Dictionary<int, int> EstoqueProduto()
-        {
-
-            //Gerar tabela de produto e quantidade
-            Dictionary<int, int> Produto = new Dictionary<int, int>();
-
-            for (int i = 1; i <= 20; i++)
-            {
-                Produto.Add(1, i + 5);
-                Produto.Add(2, i + 6);
-                Produto.Add(3, i + 3);
-                Produto.Add(4, i + 8);
-            }
-
-            return Produto;
-
-        }
+        
 
     }
 }
