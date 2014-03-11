@@ -18,7 +18,7 @@ namespace BestDog
     {
 
         [WebMethod]
-        public bool VerificaEstoque(int tipoHotDog, int tipoBebida, int filial)
+        public bool VerificaEstoque(int tipoHotDog, int tipoBebida, int filial = 1)
         {
             DatabaseHelper obj = new DatabaseHelper();
 
@@ -41,7 +41,7 @@ namespace BestDog
         }
 
         [WebMethod]
-        public decimal CalculaPreco(int tipoHotDog, int tipoBebida,bool desconto,int filial)
+        public decimal CalculaPreco(int tipoHotDog, int tipoBebida,bool desconto,int filial = 1)
         {
             decimal total = 0;
             
@@ -58,7 +58,7 @@ namespace BestDog
         }
 
         [WebMethod]
-        public void RegistraVenda(int tipoHotDog, int QtdeHotDog, int tipoBebida, int QtdeBebida  , String cpf, int idFilial)
+        public void RegistraVenda(int tipoHotDog, int QtdeHotDog, int tipoBebida, int QtdeBebida  , String cpf, int idFilial = 1)
         {
             DatabaseHelper obj = new DatabaseHelper();
 
@@ -66,7 +66,7 @@ namespace BestDog
         }
 
         [WebMethod]
-        public void AtualizaEstoqueLocal(int idProduto, int qtdeVendida, int filial)
+        public void AtualizaEstoqueLocal(int idProduto, int qtdeVendida, int filial = 1)
         {
             DatabaseHelper obj = new DatabaseHelper();
 
